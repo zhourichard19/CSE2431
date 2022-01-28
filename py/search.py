@@ -11,6 +11,7 @@ In search.py, you will implement generic search algorithms which are called
 by Pacman agents (in searchAgents.py).
 """
 
+from tracemalloc import start
 import util
 from util import heappush, heappop
 class SearchProblem:
@@ -70,68 +71,65 @@ def tinyMazeSearch(problem):
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
-    Your search algorithm needs to return a list of actions that reaches
-    the goal. Make sure that you implement the graph search version of DFS,
-    which avoids expanding any already visited states. 
-    Otherwise your implementation may run infinitely!
+
+    Your search algorithm needs to return a list of actions that reaches the
+    goal. Make sure to implement a graph search algorithm.
+
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
-    """
-    
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    """
+    "*** YOUR CODE HERE ***"
     start = problem.getStartState()
-    visitedSet = []
     states = util.Stack()
-    states.push((start,[]))
-    
-    while not states.isEmpty() and not problem.isGoalState(start):
-      currentState, directions = states.pop()
-      visitedSet.append(currentState)
-      successor = problem.getSuccessors(currentState)
-      for x in successor:
-        coordinates = x[0]
-        direction = x[1]
-        if not coordinates in visitedSet:
-          states.push((coordinates, directions + [direction]))
-      start = coordinates
-      
-    return directions + [direction]
-    util.raiseNotDefined()
-  
-    
+    visited = []
+    states.push(([], start))
+    while not states.isEmpty():
+        direction, currState = states.pop()
+        if problem.isGoalState(currState):
+            return direction
+        if currState not in visited:
+            visited.append(currState)
+            successor = problem.getSuccessors(currState)
+            for coordinates, action,x in successor:
+               directions = direction + [action]
+               states.push((directions, coordinates))
+
 
 def breadthFirstSearch(problem):
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-
     start = problem.getStartState()
-    visitedSet = []
     states = util.Queue()
-    states.push((start,[]))
-    
-    while not states.isEmpty() and not problem.isGoalState(start):
-      currentState, directions = states.pop()
-      successor = problem.getSuccessors(currentState)
-      visitedSet.append(currentState)
-      for x in successor:
-        coordinates = x[0]
-        direction = x[1]
-        if not coordinates in visitedSet:
-          states.push((coordinates, directions + [direction]))
-      start = coordinates
-      
-    return directions + [direction]
-    util.raiseNotDefined()
+    visited = []
+    states.push(([], start))
+    while not states.isEmpty():
+        direction, currState = states.pop()
+        if problem.isGoalState(currState):
+            return direction
+        if currState not in visited:
+            visited.append(currState)
+            successor = problem.getSuccessors(currState)
+            for coordinates, action,x in successor:
+               directions = direction + [action]
+               states.push((directions, coordinates))  
     
 def uniformCostSearch(problem):
-    """
-    YOUR CODE HERE
-    """
-    util.raiseNotDefined()
+    start = problem.getStartState()
+    states = util.PriorityQueue()
+    visited = []
+    states.push(([], start))
+    while not states.isEmpty():
+        direction, currState = states.pop()
+        if problem.isGoalState(currState):
+            return direction
+        if currState not in visited:
+            visited.append(currState)
+            successor = problem.getSuccessors(currState)
+            for coordinates, action,x in successor:
+               directions = direction + [action]
+               states.push((directions, coordinates)) 
 
 def nullHeuristic(state, problem=None):
     """
