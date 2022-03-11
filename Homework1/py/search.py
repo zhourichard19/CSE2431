@@ -11,7 +11,6 @@ In search.py, you will implement generic search algorithms which are called
 by Pacman agents (in searchAgents.py).
 """
 
-from tracemalloc import start
 import util
 from util import heappush, heappop
 class SearchProblem:
@@ -83,53 +82,93 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+    #initialize visited set and the fringe traversing
     start = problem.getStartState()
-    states = util.Stack()
+    fringe = util.Stack()
     visited = []
-    states.push(([], start))
-    while not states.isEmpty():
-        direction, currState = states.pop()
+    fringe.push((start,[]))
+
+    #checks as long as there are still nodes in the fringe
+    while not fringe.isEmpty():
+      #gets the first and second indexes of the node being where your and the direction
+        (currState, direction) = fringe.pop()
+        #checks to make sure agent is not at the goal state
         if problem.isGoalState(currState):
             return direction
-        if currState not in visited:
-            visited.append(currState)
-            successor = problem.getSuccessors(currState)
-            for coordinates, action,x in successor:
-               directions = direction + [action]
-               states.push((directions, coordinates))
-
+        #checks to make sure that the agent is not traversing through the same node
+        if currState in visited:
+          continue
+        #adds the traversed node into the visited set
+        visited.append(currState)
+        #gets the next nodes that are possible from the current one
+        successor = problem.getSuccessors(currState)
+        #iterates through all of the nodes getting the next coordinates, movement number and cost
+        for coordinates, action, cost in successor:
+          #checks to make sure that the next coordinate has not been traversed
+          if coordinates not in visited:
+            #adds the next coordinates into the finge including the direction and the movement number
+            directions = direction + [action]
+            fringe.push((coordinates,directions))
 
 def breadthFirstSearch(problem):
+    #initialize visited set and the fringe traversing
     start = problem.getStartState()
-    states = util.Queue()
+    fringe = util.Queue()
     visited = []
-    states.push(([], start))
-    while not states.isEmpty():
-        direction, currState = states.pop()
+    fringe.push((start,[]))
+
+    #checks as long as there are still nodes in the fringe
+    while not fringe.isEmpty():
+      #gets the first and second indexes of the node being where your and the direction
+        (currState, direction) = fringe.pop()
+        #checks to make sure agent is not at the goal state
         if problem.isGoalState(currState):
             return direction
-        if currState not in visited:
-            visited.append(currState)
-            successor = problem.getSuccessors(currState)
-            for coordinates, action,x in successor:
-               directions = direction + [action]
-               states.push((directions, coordinates))  
-    
+        #checks to make sure that the agent is not traversing through the same node
+        if currState in visited:
+          continue
+        #adds the traversed node into the visited set
+        visited.append(currState)
+        #gets the next nodes that are possible from the current one
+        successor = problem.getSuccessors(currState)
+        #iterates through all of the nodes getting the next coordinates, movement number and cost
+        for coordinates, action, cost in successor:
+          #checks to make sure that the next coordinate has not been traversed
+          if coordinates not in visited:
+            #adds the next coordinates into the finge including the direction and the movement number
+            directions = direction + [action]
+            fringe.push((coordinates,directions))
+
 def uniformCostSearch(problem):
+    #initialize visited set and the fringe traversing
     start = problem.getStartState()
-    states = util.PriorityQueue()
+    fringe = util.PriorityQueue()
     visited = []
-    states.push(([], start))
-    while not states.isEmpty():
-        direction, currState = states.pop()
+    fringe.push((start,[],0),0)
+
+    #checks as long as there are still nodes in the fringe
+    while not fringe.isEmpty():
+      #gets the first and second indexes of the node being where your and the direction
+        (currState, direction, currCost) = fringe.pop()
+        #checks to make sure agent is not at the goal state
         if problem.isGoalState(currState):
             return direction
-        if currState not in visited:
-            visited.append(currState)
-            successor = problem.getSuccessors(currState)
-            for coordinates, action,x in successor:
-               directions = direction + [action]
-               states.push((directions, coordinates)) 
+        #checks to make sure that the agent is not traversing through the same node
+        if currState in visited:
+          continue
+        #adds the traversed node into the visited set
+        visited.append(currState)
+        #gets the next nodes that are possible from the current one
+        successor = problem.getSuccessors(currState)
+        #iterates through all of the nodes getting the next coordinates, movement number and cost
+        for coordinates, action, cost in successor:
+          #checks to make sure that the next coordinate has not been traversed
+          if coordinates not in visited:
+            #adds the next coordinates into the finge including the direction and the movement number
+            directions = direction + [action]
+            #Calculates the new cost needed to travel with the uniform cost
+            newCost = cost+currCost
+            fringe.push((coordinates,directions,newCost),newCost)
 
 def nullHeuristic(state, problem=None):
     """
@@ -139,10 +178,37 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """
-    YOUR CODE HERE
-    """
-    util.raiseNotDefined()
+    #initialize visited set and the fringe traversing
+    start = problem.getStartState()
+    fringe = util.PriorityQueue()
+    visited = []
+    fringe.push((start,[],0),0)
+
+    #checks as long as there are still nodes in the fringe
+    while not fringe.isEmpty():
+      #gets the first and second indexes of the node being where your and the direction
+        (currState, direction, currCost) = fringe.pop()
+        #checks to make sure agent is not at the goal state
+        if problem.isGoalState(currState):
+            return direction
+        #checks to make sure that the agent is not traversing through the same node
+        if currState in visited:
+          continue
+        #adds the traversed node into the visited set
+        visited.append(currState)
+        #gets the next nodes that are possible from the current one
+        successor = problem.getSuccessors(currState)
+        #iterates through all of the nodes getting the next coordinates, movement number and cost
+        for coordinates, action, cost in successor:
+          #checks to make sure that the next coordinate has not been traversed
+          if coordinates not in visited:
+            #adds the next coordinates into the finge including the direction and the movement number
+            directions = direction + [action]
+            #calculates the new cost needed by adding the currentCost and the uniform cost
+            newCost = cost+currCost
+            #gets the cost needed for the new cost and the heurstic number in mind
+            primaryCost = newCost+heuristic(coordinates,problem)
+            fringe.push((coordinates,directions,newCost),primaryCost)
 
 
 # Abbreviations
